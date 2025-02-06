@@ -7,13 +7,13 @@
 , autoAddDriverRunpath
 }:
 
-buildPythonPackage (finalAttrs: {
+buildPythonPackage rec {
   pname = "custatevec";
   version = "1.7.0";
   format = "wheel";
   src = fetchPypi {
-    inherit (finalAttrs) version format;
-    pname = "${finalAttrs.pname}_cu${cudaPackages.cudaMajorVersion}";
+    inherit version format;
+    pname = "${pname}_cu${cudaPackages.cudaMajorVersion}";
     dist = "py3";
     python = "py3";
     platform = "manylinux2014_x86_64";
@@ -27,4 +27,4 @@ buildPythonPackage (finalAttrs: {
   '';
   buildInputs = [ cudaPackages.libcublas ];
   nativeBuildInputs = [ autoPatchelfHook autoAddDriverRunpath ];
-})
+}

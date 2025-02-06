@@ -1,0 +1,32 @@
+name: Experiment
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Building on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest # x64
+          # - os: ubuntu-24.04-arm # arm64
+          # - os: macos-latest # arm64
+          # - os: macos-13 # x64 
+    steps:
+    - uses: actions/checkout@v4
+      # with:
+      #   repository: 'twesterhout/nixpkgs'
+      #   ref: 'halide-v19'
+      #   fetch-depth: 1
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/cachix-action@v14
+      with:
+        name: twesterhout
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Build
+      run: |
+        nix build -L .#python3Packages.cuquantum

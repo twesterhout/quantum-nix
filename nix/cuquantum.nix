@@ -14,12 +14,12 @@
 let
   py = ''cp${lib.replaceStrings ["."] [""] python.pythonVersion}'';
 in
-buildPythonPackage (finalAttrs: {
+buildPythonPackage rec {
   pname = "cuquantum-python";
   version = "24.11.0";
   format = "wheel";
   src = fetchPypi {
-    inherit (finalAttrs) version format;
+    inherit version format;
     pname = "cuquantum_python_cu${cudaPackages.cudaMajorVersion}";
     dist = py;
     abi = py;
@@ -37,4 +37,4 @@ buildPythonPackage (finalAttrs: {
     find $out -name "*custatevec*.so*" -exec patchelf --add-needed libcustatevec.so.1 '{}' \;
     find $out -name "*cutensornet*.so*" -exec patchelf --add-needed libcutensornet.so.2 '{}' \;
   '';
-};
+}

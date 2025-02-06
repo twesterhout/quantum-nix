@@ -6,7 +6,7 @@
 , autoAddDriverRunpath
 }:
 
-buildPythonPackage (finalAttrs: {
+buildPythonPackage rec { 
   pname = "cudensitymat";
   version = "0.0.5";
   format = "wheel";
@@ -20,4 +20,4 @@ buildPythonPackage (finalAttrs: {
   };
   buildInputs = [ cudaPackages.cuda_cudart cudaPackages.libcublas cudaPackages.cutensor ];
   nativeBuildInputs = [ autoPatchelfHook autoAddDriverRunpath ];
-})
+}

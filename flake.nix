@@ -59,6 +59,10 @@
           inherit (pkgs) python3Packages;
         });
       overlays.default = overlay;
+      devShells = forEachSystem (system: _:
+        let pkgs = pkgs-for system; in {
+          default = pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
+        });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
     };
 }
