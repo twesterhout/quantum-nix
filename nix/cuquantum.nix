@@ -13,6 +13,10 @@
 
 let
   py = ''cp${lib.replaceStrings ["."] [""] python.pythonVersion}'';
+  hashes = {
+    "3.11" = "sha256-g/KYASroZdKsSEkfblCJy7iBSvfuUbrDeSQ1vUEhElk=";
+    "3.12" = "sha256-xdjBundvspsiyKpaG9ishSiGuJg1Rg6F2v/CQx//mX4=";
+  };
 in
 buildPythonPackage rec {
   pname = "cuquantum-python";
@@ -25,7 +29,7 @@ buildPythonPackage rec {
     abi = py;
     python = py;
     platform = "manylinux2014_x86_64";
-    hash = "sha256-xdjBundvspsiyKpaG9ishSiGuJg1Rg6F2v/CQx//mX4=";
+    hash = hashes."${python.pythonVersion}";
   };
   dependencies = [ custatevec cudensitymat cutensornet ];
   nativeBuildInputs = [ patchelf autoPatchelfHook autoAddDriverRunpath ];

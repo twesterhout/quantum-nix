@@ -33,6 +33,9 @@
             cutensornet = python-final.callPackage ./nix/cutensornet.nix { };
             cudensitymat = python-final.callPackage ./nix/cudensitymat.nix { };
             qsimcirq = python-final.callPackage ./nix/qsimcirq.nix { };
+            parallel-sparse-tools = python-final.callPackage ./nix/parallel-sparse-tools.nix { };
+            quspin-extensions = python-final.callPackage ./nix/quspin-extensions.nix { };
+            quspin = python-final.callPackage ./nix/quspin.nix { };
           })
         ];
       };
@@ -44,19 +47,11 @@
         overlays = [ overlay ] ++ lib.optionals (system == "x86_64-linux") [ inputs.nix-gl-host.overlays.default ];
       };
       pkgs-for = import-nixpkgs-for inputs.nixpkgs;
-
-      pythonEnv = pkgs: pkgs.python3.withPackages (ps: with ps; [
-        jaxlib
-        jax
-        cuquantum
-        qsimcirq
-        cupy
-      ]);
     in
     {
       packages = forEachSystem (system: _:
         let pkgs = pkgs-for system; in {
-          inherit (pkgs) python3Packages;
+          inherit (pkgs) python3Packages python311Packages python312Packages;
         });
       overlays.default = overlay;
       devShells = forEachSystem (system: _:

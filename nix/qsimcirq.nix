@@ -17,7 +17,7 @@
 , which
 }:
 
-buildPythonPackage {
+buildPythonPackage ({
   pname = "qsimcirq";
   version = "0.21.0";
   format = "setuptools";
@@ -42,4 +42,4 @@ buildPythonPackage {
 } // lib.optionalAttrs cudaSupport {
   CUDAARCHS = cudaPackages.flags.cmakeCudaArchitecturesString;
   CUQUANTUM_ROOT = "${custatevec}/lib/${python.libPrefix}/site-packages/cuquantum";
-}
+})

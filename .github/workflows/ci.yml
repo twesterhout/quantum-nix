@@ -29,4 +29,6 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build
       run: |
-        nix build -L .#python3Packages.cuquantum
+        nix build -L \
+          .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq .#python3Packages.quspin \
+          .#python3Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq .#python311Packages.quspin \

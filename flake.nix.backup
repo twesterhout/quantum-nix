@@ -1,0 +1,127 @@
+{
+  description = "Nix packages for Quantum physics";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = inputs:
+    let
+      python-overlay = (final: prev: {
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (python-final: python-prev: {
+          })
+        ];
+      });
+
+      pkgs-for = system: import inputs.nixpkgs {
+        inherit system;
+        config = {
+          cudaSupport = true;
+          allowUnfree = true;
+          cudaCapabilities = [ "7.0" ];
+          cudaForwardCompat = true;
+        };
+        overlays = [ python-overlay ];
+      };
+    in
+    {
+      packages = inputs.flake-utils.lib.eachDefaultSystemMap (system: {
+        cpu = with pkgs-for { inherit system; }; { inherit python3Packages; };
+        cuda = with pkgs-for { inherit system; cudaSupport = true; }; { inherit python3Packages; };
+
+        # Apptainer/Singularity container with python and tc-engine
+        apptainer = with (pkgs-for { inherit system; });
+          singularity-tools.buildImage {
+            name = "tc-engine";
+            contents = [
+              (python3.withPackages (ps: with ps; [ tc-engine ipykernel ]))
+              coreutils
+            ];
+            diskSize = 10240;
+            memSize = 5120;
+          };
+
+        # Docker container with python and tc-engine
+        docker = with (pkgs-for { inherit system; }); dockerTools.buildImage {
+          name = "tc-engine";
+          copyToRoot = pkgs.buildEnv {
+            name = "image-root";
+            pathsToLink = [ "/bin" ];
+            paths = [
+              (python3.withPackages (ps: with ps; [ tc-engine ipykernel ]))
+              coreutils
+            ];
+          };
+        };
+      });
+
+      devShells = inputs.flake-utils.lib.eachDefaultSystemMap (system: {
+        default = with (pkgs-for { inherit system; cudaSupport = false; }); (python3Packages.tc-engine.override { cotengraSupport = true; }).overrideAttrs (attrs: {
+          nativeBuildInputs = with python3Packages; (attrs.nativeBuildInputs or [ ]) ++ [ pip jupyter jupyterlab-server ipykernel ];
+        });
+
+        cuda = with (pkgs-for { inherit system; cudaSupport = true; }); python3Packages.tc-engine.overrideAttrs (attrs: {
+          propagatedBuildInputs = with python3Packages; (attrs.propagatedBuildInputs or [ ]) ++ [ pip jupyter jupyterlab-server ipykernel py-spy satn ];
+        });
+
+        # Dev shell for running benchmarks & examples
+        examples = with (pkgs-for { inherit system; cudaSupport = false; });
+          mkShell {
+            nativeBuildInputs = [
+              (python3.withPackages (ps: with ps; [
+                tc-engine
+                py-cpuinfo
+              ]))
+              satn
+              just
+            ];
+            shellHook = ''
+              export PROMPT_COMMAND=""
+              export PS1='🐍 \w $ '
+            '';
+          };
+
+        # Dev shell for running benchmarks & examples
+        examples-cuda = with (pkgs-for { inherit system; cudaSupport = true; });
+          mkShell {
+            nativeBuildInputs = [
+              (python3.withPackages (ps: with ps; [
+                tc-engine
+                py-cpuinfo
+              ]))
+            ];
+            shellHook = ''
+              export PROMPT_COMMAND=""
+              export PS1='🐍 \w $ '
+
+              # Make the CUDA drivers visible
+              if [ ! -e libcuda.so ]; then
+                for f in /lib/x86_64-linux-gnu/libcuda.so*; do
+                  ln --symbolic $f .
+                done
+              fi
+              export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
+              # Help CuPy find libnvrtc
+              export LD_LIBRARY_PATH=${cudaPackages_12_2.cuda_nvrtc}/lib:$LD_LIBRARY_PATH
+            '';
+          };
+
+        cuda-test = with (pkgs-for { inherit system; cudaSupport = true; });
+          mkShell {
+            nativeBuildInputs = [
+              (python3.withPackages (ps: with ps; [
+                (jax.override { jaxlib = jaxlib-bin; })
+                jaxlib-bin
+                cupy
+              ]))
+            ];
+            buildInputs = [ cudaPackages_12_2.cuda_nvrtc ];
+            shellHook = ''
+              export CUDA_NVRTC=${cudaPackages_12_2.cuda_nvrtc}
+            '';
+          };
+
+      });
+    };
+}
