@@ -42,5 +42,5 @@ jobs:
     - name: Build
       run: |
         nix build --accept-flake-config -L \
-          .#python3Packages.parallel-sparse-tools .#python3Packages.quspin-extensions \
-          .#python311Packages.parallel-sparse-tools .#python311Packages.quspin-extensions
+          .#python3Packages.quspin \
+          .#python311Packages.quspin
