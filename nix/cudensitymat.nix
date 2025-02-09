@@ -6,7 +6,7 @@
 , autoAddDriverRunpath
 }:
 
-buildPythonPackage rec { 
+buildPythonPackage rec {
   pname = "cudensitymat";
   version = "0.0.5";
   format = "wheel";

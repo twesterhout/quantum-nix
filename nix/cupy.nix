@@ -1,43 +1,42 @@
-{
-  lib,
-  buildPythonPackage,
-  fetchFromGitHub,
-  cython_0,
-  fastrlock,
-  numpy,
-  wheel,
-  pytestCheckHook,
-  mock,
-  setuptools,
-  cudaPackages,
-  addDriverRunpath,
-  pythonOlder,
-  symlinkJoin,
-  fetchpatch
+{ lib
+, buildPythonPackage
+, fetchFromGitHub
+, cython_0
+, fastrlock
+, numpy
+, wheel
+, pytestCheckHook
+, mock
+, setuptools
+, cudaPackages
+, addDriverRunpath
+, pythonOlder
+, symlinkJoin
+, fetchpatch
 }:
 
 let
   inherit (cudaPackages) cutensor;
   outpaths = with cudaPackages; [
-      cuda_cccl # <nv/target>
-      cuda_cudart
-      cuda_nvcc # <crt/host_defines.h>
-      cuda_nvprof
-      cuda_nvrtc
-      cuda_nvtx
-      cuda_profiler_api
-      libcublas
-      libcufft
-      libcurand
-      libcusolver
-      libcusparse
+    cuda_cccl # <nv/target>
+    cuda_cudart
+    cuda_nvcc # <crt/host_defines.h>
+    cuda_nvprof
+    cuda_nvrtc
+    cuda_nvtx
+    cuda_profiler_api
+    libcublas
+    libcufft
+    libcurand
+    libcusolver
+    libcusparse
 
-      # Missing:
-      # cusparselt
+    # Missing:
+    # cusparselt
   ];
   cudatoolkit-joined = symlinkJoin {
     name = "cudatoolkit-joined-${cudaPackages.cudaVersion}";
-    paths = outpaths ++ lib.concatMap (f: lib.map f outpaths) [lib.getLib lib.getDev (lib.getOutput "static") (lib.getOutput "stubs")];
+    paths = outpaths ++ lib.concatMap (f: lib.map f outpaths) [ lib.getLib lib.getDev (lib.getOutput "static") (lib.getOutput "stubs") ];
   };
 in
 buildPythonPackage rec {

@@ -36,6 +36,11 @@
             parallel-sparse-tools = python-final.callPackage ./nix/parallel-sparse-tools.nix { };
             quspin-extensions = python-final.callPackage ./nix/quspin-extensions.nix { };
             quspin = python-final.callPackage ./nix/quspin.nix { };
+            # Disable failing joblib tests on Darwin
+            joblib = python-prev.joblib.overridePythonAttrs (attrs:
+              lib.optionalAttrs (final.stdenv.isDarwin && python-prev.python.pythonOlder "3.12") {
+                disabledTests = (attrs.disabledTests or [ ]) ++ [ "test_parallel_with_interactively_defined_functions" ];
+              });
           })
         ];
       };
@@ -43,7 +48,10 @@
       import-nixpkgs-for = drv: system: import drv {
         inherit system;
         config = { allowUnfree = true; } // lib.optionalAttrs (system == "x86_64-linux") {
-          cudaSupport = true; cudaCapabilities = [ "7.0" ]; cudaForwardCompat = true; };
+          cudaSupport = true;
+          cudaCapabilities = [ "7.0" ];
+          cudaForwardCompat = true;
+        };
         overlays = [ overlay ] ++ lib.optionals (system == "x86_64-linux") [ inputs.nix-gl-host.overlays.default ];
       };
       pkgs-for = import-nixpkgs-for inputs.nixpkgs;
