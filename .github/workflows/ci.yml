@@ -6,22 +6,11 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Building on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest # x64
-          # - os: ubuntu-24.04-arm # arm64
-          # - os: macos-latest # arm64
-          # - os: macos-13 # x64 
+  gpu:
+    name: CUDA packages
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      # with:
-      #   repository: 'twesterhout/nixpkgs'
-      #   ref: 'halide-v19'
-      #   fetch-depth: 1
     - uses: DeterminateSystems/nix-installer-action@main
     - uses: cachix/cachix-action@v14
       with:
@@ -30,5 +19,27 @@ jobs:
     - name: Build
       run: |
         nix build --accept-flake-config -L \
-          .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq .#python3Packages.quspin \
-          .#python3Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq .#python311Packages.quspin \
+          .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq \
+          .#python3Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq
+  cpu:
+    name: CPU-only packages
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest # x64
+          - os: ubuntu-24.04-arm # arm64
+          - os: macos-latest # arm64
+          - os: macos-13 # x64 
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/cachix-action@v14
+      with:
+        name: twesterhout
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Build
+      run: |
+        nix build --accept-flake-config -L \
+          .#python3Packages.quspin \
+          .#python311Packages.quspin
