@@ -19,8 +19,8 @@ jobs:
     - name: Build
       run: |
         nix build --accept-flake-config -L \
-          .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq \
-          .#python3Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq
+          .#python3Packages.halide .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq \
+          .#python311Packages.halide .#python311Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq
   cpu:
     name: CPU-only packages
     runs-on: ${{ matrix.os }}
