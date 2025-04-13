@@ -19,8 +19,8 @@ jobs:
     - name: Build
       run: |
         nix build --option max-jobs 1 --option cores 2 --accept-flake-config -L \
-          .#gpu.python3Packages.halide .#gpu.python3Packages.cupy .#gpu.python3Packages.cuquantum .#gpu.python3Packages.qsimcirq \
-          .#gpu.python311Packages.halide .#gpu.python311Packages.cupy .#gpu.python311Packages.cuquantum .#gpu.python311Packages.qsimcirq
+          .#cuda.python3Packages.halide .#cuda.python3Packages.cupy .#cuda.python3Packages.cuquantum .#cuda.python3Packages.qsimcirq \
+          .#cuda.python311Packages.halide .#cuda.python311Packages.cupy .#cuda.python311Packages.cuquantum .#cuda.python311Packages.qsimcirq
   cpu:
     name: CPU-only packages
     runs-on: ${{ matrix.os }}
