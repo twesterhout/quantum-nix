@@ -45,25 +45,26 @@
         ];
       };
 
-      import-nixpkgs-for = drv: system: import drv {
+      import-nixpkgs-for = drv: cudaSupport: system: import drv {
         inherit system;
-        config = { allowUnfree = true; } // lib.optionalAttrs (system == "x86_64-linux") {
+        config = { allowUnfree = true; } // lib.optionalAttrs cudaSupport {
           cudaSupport = true;
           cudaCapabilities = [ "7.0" ];
           cudaForwardCompat = true;
         };
-        overlays = [ overlay ] ++ lib.optionals (system == "x86_64-linux") [ inputs.nix-gl-host.overlays.default ];
+        overlays = [ overlay ] ++ lib.optionals cudaSupport [ inputs.nix-gl-host.overlays.default ];
       };
-      pkgs-for = import-nixpkgs-for inputs.nixpkgs;
+      pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
+      pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
     in
     {
-      packages = forEachSystem (system: _:
-        let pkgs = pkgs-for system; in {
-          inherit (pkgs) python3Packages python311Packages python312Packages;
-        });
+      packages = forEachSystem (system: _: {
+        cpu = { inherit (pkgs-for-cpu system) python3Packages python311Packages python312Packages; };
+        cuda = { inherit (pkgs-for-cuda system) python3Packages python311Packages python312Packages; };
+      });
       overlays.default = overlay;
       devShells = forEachSystem (system: _:
-        let pkgs = pkgs-for system; in {
+        let pkgs = pkgs-for-cpu system; in {
           default = pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
         });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);

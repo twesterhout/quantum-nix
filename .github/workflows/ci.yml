@@ -18,7 +18,7 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Build
       run: |
-        nix build --accept-flake-config -L \
+        nix build --option max-jobs 1 --option cores 2 --accept-flake-config -L \
           .#python3Packages.halide .#python3Packages.cupy .#python3Packages.cuquantum .#python3Packages.qsimcirq \
           .#python311Packages.halide .#python311Packages.cupy .#python311Packages.cuquantum .#python311Packages.qsimcirq
   cpu:
@@ -39,8 +39,14 @@ jobs:
       with:
         name: twesterhout
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Build quspin-extensions (Python 3.12)
+      run: |
+        nix build --option max-jobs 1 --option cores 1 --accept-flake-config -L .#python312Packages.quspin-extensions
+    - name: Build quspin-extensions (Python 3.11)
+      run: |
+        nix build --option max-jobs 1 --option cores 1 --accept-flake-config -L .#python311Packages.quspin-extensions
     - name: Build
       run: |
-        nix build --accept-flake-config -L \
+        nix build --option max-jobs 1 --accept-flake-config -L \
           .#python3Packages.quspin \
           .#python311Packages.quspin
