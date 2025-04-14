@@ -2,7 +2,9 @@
 , fetchPypi
 , fetchFromGitHub
 , numpy
+, pandas
 , setuptools
+, pytestCheckHook
 }:
 
 buildPythonPackage rec {
@@ -19,6 +21,14 @@ buildPythonPackage rec {
     rev = "618363fa9d065ca837d29e97d8352c84ead23e5d";
     hash = "sha256-esjcJSUJ2Nws53VbR0j55HkKuok3o4vkY7kw3UIMW5U=";
   };
+  postPatch = ''
+    echo "from setuptools import setup, find_packages; setup(packages=find_packages())" >> setup.py
+  '';
   dependencies = [ numpy ];
   nativeBuildInputs = [ setuptools ];
+  nativeCheckInputs = [ pandas pytestCheckHook ];
+  disabledTestPaths = [
+    "tests/acceptance/test_with_polars.py"
+    "tests/acceptance/test_performance.py"
+  ];
 }
