@@ -24,6 +24,7 @@
       forEachSystem = f: lib.mapAttrs f inputs.nixpkgs.legacyPackages;
 
       overlay = final: prev: {
+        hphi = final.callPackage ./nix/hphi.nix { };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
             # NOTE: put your Python package overrides here
@@ -59,7 +60,7 @@
     in
     {
       packages = forEachSystem (system: _: {
-        cpu = { inherit (pkgs-for-cpu system) python3Packages python311Packages python312Packages; };
+        cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
         cuda = { inherit (pkgs-for-cuda system) python3Packages python311Packages python312Packages; };
       });
       overlays.default = overlay;

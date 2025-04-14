@@ -45,8 +45,14 @@ jobs:
     - name: Build quspin-extensions (Python 3.11)
       run: |
         nix build --option max-jobs 1 --option cores 1 --accept-flake-config -L .#cpu.python311Packages.quspin-extensions
-    - name: Build
+    - name: Build quspin
       run: |
         nix build --option max-jobs 1 --accept-flake-config -L \
           .#cpu.python3Packages.quspin \
           .#cpu.python311Packages.quspin
+    - name: Build qsimcirq
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        nix build --option max-jobs 1 --accept-flake-config -L \
+          .#cpu.python3Packages.qsimcirq \
+          .#cpu.python311Packages.qsimcirq
