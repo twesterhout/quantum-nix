@@ -42,6 +42,7 @@
               lib.optionalAttrs (final.stdenv.isDarwin && python-prev.python.pythonOlder "3.12") {
                 disabledTests = (attrs.disabledTests or [ ]) ++ [ "test_parallel_with_interactively_defined_functions" ];
               });
+            uniplot = python-final.callPackage ./nix/uniplot.nix { };
           })
         ];
       };
