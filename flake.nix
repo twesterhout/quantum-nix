@@ -1,9 +1,9 @@
 {
-  description = "Nix derivations for quantum many-body physics";
+  description = "Nix derivations for quantum many-body physics and quantum computing";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nix-gl-host.url = "github:numtide/nix-gl-host";
-    nix-gl-host.inputs.nixpkgs.follows = "nixpkgs";
+    # nix-gl-host.url = "github:numtide/nix-gl-host";
+    # nix-gl-host.inputs.nixpkgs.follows = "nixpkgs";
   };
   nixConfig = {
     extra-substituters = [
@@ -28,6 +28,7 @@
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
             # NOTE: put your Python package overrides here
+            autoray = python-final.callPackage ./nix/autoray.nix { };
             cupy = python-final.callPackage ./nix/cupy.nix { };
             cuquantum = python-final.callPackage ./nix/cuquantum.nix { };
             custatevec = python-final.callPackage ./nix/custatevec.nix { };
@@ -54,7 +55,7 @@
           cudaCapabilities = [ "7.0" ];
           cudaForwardCompat = true;
         };
-        overlays = [ overlay ] ++ lib.optionals cudaSupport [ inputs.nix-gl-host.overlays.default ];
+        overlays = [ overlay ]; #  ++ lib.optionals cudaSupport [ inputs.nix-gl-host.overlays.default ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
       pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
@@ -65,9 +66,8 @@
         cuda = { inherit (pkgs-for-cuda system) python3Packages python311Packages python312Packages; };
       });
       overlays.default = overlay;
-      devShells = forEachSystem (system: _:
-        let pkgs = pkgs-for-cpu system; in {
-          default = pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
+      devShells = forEachSystem (system: _: {
+          default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
         });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
     };
