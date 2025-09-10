@@ -2,8 +2,6 @@
   description = "Nix derivations for quantum many-body physics and quantum computing";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # nix-gl-host.url = "github:numtide/nix-gl-host";
-    # nix-gl-host.inputs.nixpkgs.follows = "nixpkgs";
   };
   nixConfig = {
     extra-substituters = [
@@ -29,13 +27,16 @@
           (python-final: python-prev: {
             # NOTE: put your Python package overrides here
             autoray = python-final.callPackage ./nix/autoray.nix { };
-            cupy = python-final.callPackage ./nix/cupy.nix { };
+            # cupy = python-final.callPackage ./nix/cupy.nix { };
+            cuda-core = python-final.callPackage ./nix/cuda-core.nix { };
+            cuda-bindings = python-final.callPackage ./nix/cuda-bindings.nix { };
             cuquantum = python-final.callPackage ./nix/cuquantum.nix { };
             custatevec = python-final.callPackage ./nix/custatevec.nix { };
             cutensornet = python-final.callPackage ./nix/cutensornet.nix { };
             cudensitymat = python-final.callPackage ./nix/cudensitymat.nix { };
             qsimcirq = python-final.callPackage ./nix/qsimcirq.nix { };
             parallel-sparse-tools = python-final.callPackage ./nix/parallel-sparse-tools.nix { };
+            pyclibrary = python-final.callPackage ./nix/pyclibrary.nix { };
             quspin-extensions = python-final.callPackage ./nix/quspin-extensions.nix { };
             quspin = python-final.callPackage ./nix/quspin.nix { };
             # Disable failing joblib tests on Darwin
@@ -55,7 +56,7 @@
           cudaCapabilities = [ "7.0" ];
           cudaForwardCompat = true;
         };
-        overlays = [ overlay ]; #  ++ lib.optionals cudaSupport [ inputs.nix-gl-host.overlays.default ];
+        overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
       pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
@@ -63,11 +64,14 @@
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
-        cuda = { inherit (pkgs-for-cuda system) python3Packages python311Packages python312Packages; };
+        cuda = { inherit (pkgs-for-cuda system) cudaPackages python3Packages python311Packages python312Packages; };
       });
       overlays.default = overlay;
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
+          # test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
+          #   (python3.withPackages (ps: with ps; [ cuda-core cuda-bindings jax jaxlib jax-cuda12-plugin numpy ]))
+          # ]; };
         });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
     };

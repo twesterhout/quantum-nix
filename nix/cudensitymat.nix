@@ -1,14 +1,16 @@
 { lib
+, python
 , buildPythonPackage
 , fetchPypi
 , cudaPackages
+, cutensornet
 , autoPatchelfHook
 , autoAddDriverRunpath
 }:
 
 buildPythonPackage rec {
   pname = "cudensitymat";
-  version = "0.0.5";
+  version = "0.3.0";
   format = "wheel";
   src = fetchPypi {
     inherit version format;
@@ -16,8 +18,12 @@ buildPythonPackage rec {
     dist = "py3";
     python = "py3";
     platform = "manylinux2014_x86_64";
-    hash = "sha256-651ggQ5wljbNQNe3Jo/djpYDCXErUULDq+kqnTyOBUg=";
+    hash = "sha256-jXA/gkONvbSdn8cUhjCokCb3SY6xSEawLLTJElBlLbQ";
   };
-  buildInputs = [ cudaPackages.cuda_cudart cudaPackages.libcublas cudaPackages.cutensor ];
+  postPatch = ''
+    addAutoPatchelfSearchPath ${cutensornet}/${python.sitePackages}/cuquantum/lib
+  '';
+  dependencies = [ cutensornet ];
+  buildInputs = [ cudaPackages.cuda_cudart cudaPackages.libcublas cudaPackages.cutensor cudaPackages.libcurand cudaPackages.libcusolver ];
   nativeBuildInputs = [ autoPatchelfHook autoAddDriverRunpath ];
 }

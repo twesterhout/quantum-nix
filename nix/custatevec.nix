@@ -9,7 +9,7 @@
 
 buildPythonPackage rec {
   pname = "custatevec";
-  version = "1.7.0";
+  version = "1.10.0";
   format = "wheel";
   src = fetchPypi {
     inherit version format;
@@ -17,7 +17,7 @@ buildPythonPackage rec {
     dist = "py3";
     python = "py3";
     platform = "manylinux2014_x86_64";
-    hash = "sha256-34G07urchBtMOsSBbmuePd5rKI8TosAAX+y9BQH56m0=";
+    hash = "sha256-8CVpY1yibqoG59qPqS5E5c6Zt1VSolDsfOAQunZu6c0";
   };
   # The following is needed for CMake to be able to detect custatevec in find_library calls
   postFixup = ''
