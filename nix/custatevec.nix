@@ -27,4 +27,5 @@ buildPythonPackage rec {
   '';
   buildInputs = [ cudaPackages.libcublas ];
   nativeBuildInputs = [ autoPatchelfHook autoAddDriverRunpath ];
+  autoPatchelfIgnoreMissingDeps = [ "libnvidia-ml.so.1" ];
 }
