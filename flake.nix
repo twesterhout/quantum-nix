@@ -25,9 +25,7 @@
         hphi = final.callPackage ./nix/hphi.nix { };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
-            # NOTE: put your Python package overrides here
             autoray = python-final.callPackage ./nix/autoray.nix { };
-            # cupy = python-final.callPackage ./nix/cupy.nix { };
             cuda-core = python-final.callPackage ./nix/cuda-core.nix { };
             cuda-bindings = python-final.callPackage ./nix/cuda-bindings.nix { };
             cuquantum = python-final.callPackage ./nix/cuquantum.nix { };
@@ -49,14 +47,9 @@
         ];
       };
 
+      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "7.0" "8.0" ]; cudaForwardCompat = true; };
       import-nixpkgs-for = drv: cudaSupport: system: import drv {
-        inherit system;
-        config = { allowUnfree = true; } // lib.optionalAttrs cudaSupport {
-          cudaSupport = true;
-          cudaCapabilities = [ "7.0" ];
-          cudaForwardCompat = true;
-        };
-        overlays = [ overlay ];
+        inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
       pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
@@ -67,10 +60,11 @@
         cuda = { inherit (pkgs-for-cuda system) cudaPackages python3Packages python311Packages python312Packages; };
       });
       overlays.default = overlay;
+      inherit cudaConfig;
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
           # test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
-          #   (python3.withPackages (ps: with ps; [ cuda-core cuda-bindings jax jaxlib jax-cuda12-plugin numpy ]))
+          #   (python3.withPackages (ps: with ps; [ cuda-core cuda-bindings cupy ]))
           # ]; };
         });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
