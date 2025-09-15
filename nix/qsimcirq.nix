@@ -52,5 +52,5 @@ buildPythonPackage ({
   '';
 } // lib.optionalAttrs cudaSupport {
   CUDAARCHS = cudaPackages.flags.cmakeCudaArchitecturesString;
-  CUQUANTUM_ROOT = "${custatevec}/lib/${python.libPrefix}/site-packages/cuquantum";
+  # CUQUANTUM_ROOT = "${custatevec}/lib/${python.libPrefix}/site-packages/cuquantum";
 })
