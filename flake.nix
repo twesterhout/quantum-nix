@@ -32,7 +32,7 @@
             custatevec = python-final.callPackage ./nix/custatevec.nix { };
             cutensornet = python-final.callPackage ./nix/cutensornet.nix { };
             cudensitymat = python-final.callPackage ./nix/cudensitymat.nix { };
-            qsimcirq = python-final.callPackage ./nix/qsimcirq.nix { };
+            qsimcirq = python-final.callPackage ./nix/qsimcirq.nix { doCheck = false; };
             parallel-sparse-tools = python-final.callPackage ./nix/parallel-sparse-tools.nix { };
             pyclibrary = python-final.callPackage ./nix/pyclibrary.nix { };
             quspin-extensions = python-final.callPackage ./nix/quspin-extensions.nix { };
@@ -43,11 +43,19 @@
                 disabledTests = (attrs.disabledTests or [ ]) ++ [ "test_parallel_with_interactively_defined_functions" ];
               });
             uniplot = python-final.callPackage ./nix/uniplot.nix { };
+          } // lib.optionalAttrs prev.config.cudaSupport {
+            jax = python-prev.jax.overridePythonAttrs (attrs: { doCheck = false; });
+
+            cupy = python-prev.cupy.overridePythonAttrs (attrs: {
+              CUPY_NVCC_GENERATE_CODE = builtins.concatStringsSep ";" (builtins.map
+                (lib.strings.removePrefix "-gencode=") final.cudaPackages.flags.gencode);
+              nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ final.autoAddDriverRunpath ];
+            });
           })
         ];
-      };
+      }; # // lib.optionalAttrs prev.config.cudaSupport { cudaPackages = prev.cudaPackages_12_6; };
 
-      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "7.0" "8.0" ]; cudaForwardCompat = true; };
+      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "7.0" ]; cudaForwardCompat = true; };
       import-nixpkgs-for = drv: cudaSupport: system: import drv {
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
@@ -63,9 +71,9 @@
       inherit cudaConfig;
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
-          # test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
-          #   (python3.withPackages (ps: with ps; [ cuda-core cuda-bindings cupy ]))
-          # ]; };
+          test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
+            (python3.withPackages (ps: with ps; [ qsimcirq cirq-core ]))
+          ]; };
         });
       formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
     };

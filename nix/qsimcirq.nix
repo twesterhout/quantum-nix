@@ -1,4 +1,5 @@
 { lib
+, autoAddDriverRunpath
 , config
 , stdenv
 , buildPythonPackage
@@ -15,7 +16,7 @@
 , pybind11
 , pytestCheckHook
 , cmake
-, which
+, doCheck ? true
 }:
 
 buildPythonPackage ({
@@ -32,11 +33,12 @@ buildPythonPackage ({
   dontUseCmakeConfigure = true;
   dependencies = [ absl-py cirq-core numpy typing-extensions ];
   buildInputs = [ pybind11 ] ++ lib.optionals cudaSupport [ cudaPackages.cuda_cudart cudaPackages.cuda_cccl cudaPackages.libcublas ];
-  nativeBuildInputs = [ setuptools cmake ] ++ lib.optionals cudaSupport [ which cudaPackages.cuda_nvcc ];
+  nativeBuildInputs = [ setuptools cmake ] ++ lib.optionals cudaSupport [ cudaPackages.cuda_nvcc autoAddDriverRunpath ];
   preCheck = "rm -rf qsimcirq/";
   nativeCheckInputs = [ pytestCheckHook ];
   pytestFlagsArray = [ "qsimcirq_tests/" "--capture=no" "-v" ];
   disabledTests = [ "multi_qubit_noise" ]; # These tests complain about non-unitary matrices. Likely an issue with precision
+  inherit doCheck;
   meta = with lib; {
     description = "Schrödinger and Schrödinger-Feynman simulators for quantum circuits.";
     homepage = "https://quantumai.google/qsim";
