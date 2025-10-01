@@ -38,10 +38,11 @@
             quspin-extensions = python-final.callPackage ./nix/quspin-extensions.nix { };
             quspin = python-final.callPackage ./nix/quspin.nix { };
             # Disable failing joblib tests on Darwin
-            joblib = python-prev.joblib.overridePythonAttrs (attrs:
-              lib.optionalAttrs (final.stdenv.isDarwin && python-prev.python.pythonOlder "3.12") {
-                disabledTests = (attrs.disabledTests or [ ]) ++ [ "test_parallel_with_interactively_defined_functions" ];
-              });
+            joblib = python-prev.joblib.overridePythonAttrs (attrs: rec {
+              version = "1.5.2";
+              name = "${attrs.pname}-${version}";
+              src = python-prev.fetchPypi { inherit (attrs) pname; inherit version; hash = "sha256-P6pcOQVLLwPKVH2psvUv3mfAYkDDGFPzBq6pfxNke1U"; };
+            });
             uniplot = python-final.callPackage ./nix/uniplot.nix { };
           } // lib.optionalAttrs prev.config.cudaSupport {
             jax = python-prev.jax.overridePythonAttrs (attrs: { doCheck = false; });
