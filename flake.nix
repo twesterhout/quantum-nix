@@ -68,7 +68,6 @@
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
         cuda = { inherit (pkgs-for-cuda system) cudaPackages python3Packages python311Packages python312Packages; };
       });
-      overlays.default = overlay;
       inherit cudaConfig;
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
@@ -76,6 +75,8 @@
             (python3.withPackages (ps: with ps; [ qsimcirq cirq-core ]))
           ]; };
         });
-      formatter = forEachSystem (system: pkgs: pkgs.nixpkgs-fmt);
+      formatter = forEachSystem (_: pkgs: pkgs.nixpkgs-fmt);
+      legacyPackages = forEachSystem (_: pkgs': pkgs'.extend overlay);
+      overlays.default = overlay;
     };
 }
