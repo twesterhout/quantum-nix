@@ -21,14 +21,14 @@
 
 buildPythonPackage ({
   pname = "qsimcirq";
-  version = "0.22.0";
+  version = "0.23.0.dev0";
   format = "setuptools";
   stdenv = if cudaSupport then cudaPackages.backendStdenv else stdenv;
   src = fetchFromGitHub {
     owner = "quantumlib";
     repo = "qsim";
-    tag = "v0.22.0";
-    hash = "sha256-Dxy+wdaoFk0zineVhJPq+Jq7bUOBLETpoWCFqvuTw0Y=";
+    rev = "dbeebff7f2ecf26d199e932d6b4ea20777c3aa28";
+    hash = "sha256-oTSf96eI93g9AKqe9qxpa6Ir28J0+t3fEx+lkK9t0/E";
   };
   dontUseCmakeConfigure = true;
   dependencies = [ absl-py cirq-core numpy typing-extensions ];
@@ -50,7 +50,7 @@ buildPythonPackage ({
     echo -e "find_package(Python 3.10 COMPONENTS Interpreter Development REQUIRED)\nfind_package(pybind11 CONFIG REQUIRED)" > pybind_interface/GetPybind11.cmake
     substituteInPlace pybind_interface/decide/CMakeLists.txt \
       --replace-fail 'find_package(Python3' '# find_package(Python3' \
-      --replace-fail 'include_directories(''${PYTHON_INCLUDE_DIRS} ''${pybind11_SOURCE_DIR}/include)' 'target_link_libraries(qsim_decide pybind11::pybind11)'
+      --replace-fail 'include_directories(''${PYTHON_INCLUDE_DIRS} ''${pybind11_SOURCE_DIR}/include)' 'target_link_libraries(qsim_decide PUBLIC pybind11::pybind11)'
   '';
 } // lib.optionalAttrs cudaSupport {
   CUDAARCHS = cudaPackages.flags.cmakeCudaArchitecturesString;
