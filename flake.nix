@@ -56,7 +56,7 @@
         ];
       }; # // lib.optionalAttrs prev.config.cudaSupport { cudaPackages = prev.cudaPackages_12_6; };
 
-      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "7.0" ]; cudaForwardCompat = true; };
+      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "8.0" ]; cudaForwardCompat = true; };
       import-nixpkgs-for = drv: cudaSupport: system: import drv {
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
@@ -66,7 +66,7 @@
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
-        cuda = { inherit (pkgs-for-cuda system) cudaPackages python3Packages python311Packages python312Packages; };
+        cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_12_9 python3Packages python311Packages python312Packages; };
       });
       inherit cudaConfig;
       devShells = forEachSystem (system: _: {
