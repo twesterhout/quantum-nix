@@ -47,11 +47,11 @@
           } // lib.optionalAttrs prev.config.cudaSupport {
             jax = python-prev.jax.overridePythonAttrs (attrs: { doCheck = false; });
 
-            cupy = python-prev.cupy.overridePythonAttrs (attrs: {
-              CUPY_NVCC_GENERATE_CODE = builtins.concatStringsSep ";" (builtins.map
-                (lib.strings.removePrefix "-gencode=") final.cudaPackages.flags.gencode);
-              nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ final.autoAddDriverRunpath ];
-            });
+            # cupy = python-prev.cupy.overridePythonAttrs (attrs: {
+            #   CUPY_NVCC_GENERATE_CODE = builtins.concatStringsSep ";" (builtins.map
+            #     (lib.strings.removePrefix "-gencode=") final.cudaPackages.flags.gencode);
+            #   nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ final.autoAddDriverRunpath ];
+            # });
           })
         ];
       }; # // lib.optionalAttrs prev.config.cudaSupport { cudaPackages = prev.cudaPackages_12_6; };
@@ -72,7 +72,7 @@
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
           test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
-            (python3.withPackages (ps: with ps; [ qsimcirq cirq-core ]))
+            (python3.withPackages (ps: with ps; [ cupy numpy ]))
           ]; };
         });
       formatter = forEachSystem (_: pkgs: pkgs.nixpkgs-fmt);
