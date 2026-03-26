@@ -28,13 +28,15 @@ buildPythonPackage rec {
       "3.13" = "sha256-Ify06RfkMjftzF46GhJB4qKUa6nld842/VgL2YVvkeg";
     }."${python.pythonVersion}";
   };
-  preFixup = ''
-    find $out -name "*cusolver*.so*" -exec patchelf --remove-needed libcusolver.so.11 '{}' \;
-    find $out -name "*cutensor*.so*" -exec patchelf --remove-needed libcutensor.so.2 --remove-needed libcutensorMg.so.2 '{}' \;
-    find $out -name "*cusparse*.so*" -exec patchelf --remove-needed libcusparse.so.12 '{}' \;
-    find $out -name "*cufft*.so*" -exec patchelf --remove-needed libcufft.so.11 '{}' \;
-  '';
+  # preFixup = ''
+  #   find $out -name "*cusolver*.so*" -exec patchelf --remove-needed libcusolver.so.11 '{}' \;
+  #   find $out -name "*cutensor*.so*" -exec patchelf --remove-needed libcutensor.so.2 --remove-needed libcutensorMg.so.2 '{}' \;
+  #   find $out -name "*cusparse*.so*" -exec patchelf --remove-needed libcusparse.so.12 '{}' \;
+  #   find $out -name "*cufft*.so*" -exec patchelf --remove-needed libcufft.so.11 '{}' \;
+  # '';
   dependencies = [ numpy cuda-pathfinder ];
-  buildInputs = with cudaPackages; [ nccl (lib.getLib libcublas) (lib.getLib libcurand) (lib.getLib cuda_cudart) (lib.getLib cuda_nvrtc) (lib.getLib libnvjitlink) ];
+  buildInputs = with cudaPackages; [ nccl (lib.getLib libcusolver) (lib.getLib libcusparse) (lib.getLib libcufft)
+    (lib.getLib libcublas) (lib.getLib libcurand) (lib.getLib cuda_cudart) (lib.getLib cuda_nvrtc) (lib.getLib libnvjitlink) ];
   nativeBuildInputs = [ autoPatchelfHook ]; # autoAddDriverRunpath ];
+  autoPatchelfIgnoreMissingDeps = [ "libcutensor.so.2" "libcutensorMg.so.2" ];
 }
