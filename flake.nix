@@ -28,6 +28,8 @@
             autoray = python-final.callPackage ./nix/autoray.nix { };
             cuda-core = python-final.callPackage ./nix/cuda-core.nix { };
             cuda-bindings = python-final.callPackage ./nix/cuda-bindings.nix { };
+            cuda-pathfinder = python-final.callPackage ./nix/cuda-pathfinder.nix { };
+            nvmath-python = python-final.callPackage ./nix/nvmath-python.nix { };
             cuquantum = python-final.callPackage ./nix/cuquantum.nix { };
             custatevec = python-final.callPackage ./nix/custatevec.nix { };
             cutensornet = python-final.callPackage ./nix/cutensornet.nix { };
