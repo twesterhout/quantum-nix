@@ -26,6 +26,7 @@
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
             autoray = python-final.callPackage ./nix/autoray.nix { };
+            cupy = python-final.callPackage ./nix/cupy.nix { };
             cuda-core = python-final.callPackage ./nix/cuda-core.nix { };
             cuda-bindings = python-final.callPackage ./nix/cuda-bindings.nix { };
             cuda-pathfinder = python-final.callPackage ./nix/cuda-pathfinder.nix { };
