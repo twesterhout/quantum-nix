@@ -83,5 +83,6 @@
       formatter = forEachSystem (_: pkgs: pkgs.nixpkgs-fmt);
       legacyPackages = forEachSystem (_: pkgs': pkgs'.extend overlay);
       overlays.default = overlay;
+      inherit pkgs-for-cuda pkgs-for-cpu;
     };
 }
