@@ -61,7 +61,7 @@
         ];
       }; # // lib.optionalAttrs prev.config.cudaSupport { cudaPackages = prev.cudaPackages_12_6; };
 
-      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "8.0" ]; cudaForwardCompat = true; };
+      cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "8.0" "9.0" "12.0" ]; cudaForwardCompat = true; };
       import-nixpkgs-for = drv: cudaSupport: system: import drv {
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
