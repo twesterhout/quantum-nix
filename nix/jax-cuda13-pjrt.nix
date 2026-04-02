@@ -43,10 +43,10 @@ buildPythonPackage (finalAttrs: {
   };
   nativeBuildInputs = [ autoPatchelfHook pypaInstallHook wheelUnpackHook ];
   postInstall = ''
-    mkdir -p $out/${python.sitePackages}/jax_plugins/nvidia/cuda_nvcc/bin
-    ln -s ${lib.getExe' cudaPackages.cuda_nvcc "ptxas"} $out/${python.sitePackages}/jax_plugins/nvidia/cuda_nvcc/bin/ptxas
-    ln -s ${lib.getExe' cudaPackages.cuda_nvcc "nvlink"} $out/${python.sitePackages}/jax_plugins/nvidia/cuda_nvcc/bin/nvlink
-    ln -s ${cudaPackages.cuda_nvcc}/nvvm $out/${python.sitePackages}/jax_plugins/nvidia/cuda_nvcc/nvvm
+    mkdir -p $out/${python.sitePackages}/jax_plugins/xla_cuda13/cuda/bin
+    ln -s ${lib.getExe' cudaPackages.cuda_nvcc "ptxas"} $out/${python.sitePackages}/jax_plugins/xla_cuda13/cuda/bin/ptxas
+    ln -s ${lib.getExe' cudaPackages.cuda_nvcc "nvlink"} $out/${python.sitePackages}/jax_plugins/xla_cuda13/cuda/bin/nvlink
+    ln -s ${cudaPackages.cuda_nvcc}/nvvm $out/${python.sitePackages}/jax_plugins/xla_cuda13/cuda/nvvm
   '';
   preInstallCheck = ''
     patchelf --add-rpath "${cudaLibPath}" $out/${python.sitePackages}/jax_plugins/xla_cuda13/xla_cuda_plugin.so
