@@ -49,6 +49,8 @@
             uniplot = python-final.callPackage ./nix/uniplot.nix { };
           } // lib.optionalAttrs prev.config.cudaSupport {
             jax = python-prev.jax.overridePythonAttrs (attrs: { doCheck = false; });
+            jax-cuda13-pjrt = python-final.callPackage ./nix/jax-cuda13-pjrt.nix { };
+            jax-cuda13-plugin = python-final.callPackage ./nix/jax-cuda13-plugin.nix { };
 
             # cupy = python-prev.cupy.overridePythonAttrs (attrs: {
             #   CUPY_NVCC_GENERATE_CODE = builtins.concatStringsSep ";" (builtins.map
@@ -64,12 +66,12 @@
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
-      pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
+      pkgs-for-cuda = system: (import-nixpkgs-for inputs.nixpkgs true system).cudaPackages_13.pkgs;
     in
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
-        cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_12_9 python3Packages python311Packages python312Packages; };
+        cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_13 cudaPackages_12_9 python3Packages python311Packages python312Packages; };
       });
       inherit cudaConfig;
       devShells = forEachSystem (system: _: {
