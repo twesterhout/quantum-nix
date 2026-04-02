@@ -19,13 +19,13 @@ buildPythonPackage rec {
   format = "wheel";
   src = fetchPypi {
     inherit version format;
-    pname = "cupy_cuda12x";
+    pname = "cupy_cuda13x";
     dist = py;
     abi = py;
     python = py;
     platform = "manylinux2014_x86_64";
     hash = {
-      "3.13" = "sha256-Ify06RfkMjftzF46GhJB4qKUa6nld842/VgL2YVvkeg";
+      "3.13" = "sha256-HCBkg6rqQM04v70aKfTfDBnVVdMG/+Q+8W852w5+en8"; # sha256-Ify06RfkMjftzF46GhJB4qKUa6nld842/VgL2YVvkeg";
     }."${python.pythonVersion}";
   };
   # preFixup = ''
