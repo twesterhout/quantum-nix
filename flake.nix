@@ -66,7 +66,7 @@
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
-      pkgs-for-cuda = system: (import-nixpkgs-for inputs.nixpkgs true system).cudaPackages_13.pkgs;
+      pkgs-for-cuda = system: (import-nixpkgs-for inputs.nixpkgs true system).cudaPackages_13_1.pkgs;
     in
     {
       packages = forEachSystem (system: _: {
