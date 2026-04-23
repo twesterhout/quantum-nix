@@ -5,12 +5,10 @@
   };
   nixConfig = {
     extra-substituters = [
-      "https://twesterhout.cachix.org"
       "https://nix-community.cachix.org"
       "https://cuda-maintainers.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "twesterhout.cachix.org-1:AtBrVtHiRtg7piQOwT9IWx3N/+q+lM6RrpxzpeT3zAE="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
     ];
@@ -66,14 +64,14 @@
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
-      pkgs-for-cuda = system: (import-nixpkgs-for inputs.nixpkgs true system).cudaPackages_13_1.pkgs;
+      pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
+      # system).cudaPackages_13_1.pkgs;
     in
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
-        cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_13 cudaPackages_12_9 python3Packages python311Packages python312Packages; };
+        cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_13_2 cudaPackages_13_0 python3Packages python311Packages python312Packages; };
       });
-      inherit cudaConfig;
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
           test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
@@ -83,6 +81,6 @@
       formatter = forEachSystem (_: pkgs: pkgs.nixpkgs-fmt);
       legacyPackages = forEachSystem (_: pkgs': pkgs'.extend overlay);
       overlays.default = overlay;
-      inherit pkgs-for-cuda pkgs-for-cpu;
+      inherit cudaConfig pkgs-for-cuda pkgs-for-cpu;
     };
 }
