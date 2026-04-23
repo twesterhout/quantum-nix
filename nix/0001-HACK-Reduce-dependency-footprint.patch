@@ -1,0 +1,151 @@
+From e84fe2c8a4978ef2ae52ad1c4d45f46f1c5186e1 Mon Sep 17 00:00:00 2001
+From: Tom Westerhout <westerhout@google.com>
+Date: Tue, 16 Dec 2025 16:16:58 +0000
+Subject: [PATCH] [HACK] Reduce dependency footprint
+
+---
+ pyproject.toml   |  3 ---
+ tnco/ctree.py    | 24 +++---------------------
+ tnco/utils/tn.py | 30 +++---------------------------
+ 3 files changed, 6 insertions(+), 51 deletions(-)
+
+diff --git a/pyproject.toml b/pyproject.toml
+index 4510109..e5dcd3a 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -46,10 +46,7 @@ classifiers = [
+ ]
+ dependencies = [
+   "autoray",
+-  "fire",
+   "more_itertools",
+-  "pathvalidate",
+-  "rich"
+ ]
+ 
+ [project.optional-dependencies]
+diff --git a/tnco/ctree.py b/tnco/ctree.py
+index 5fae414..3f03d5c 100644
+--- a/tnco/ctree.py
++++ b/tnco/ctree.py
+@@ -22,8 +22,6 @@ from typing import (Any, Callable, Dict, FrozenSet, Iterable, List, NoReturn,
+                     Optional, Tuple, Union)
+ 
+ import more_itertools as mit
+-from rich.console import Console
+-from rich.progress import Progress, track
+ from tnco_core import ContractionTree as _ContractionTree
+ from tnco_core import Node
+ from tnco_core.utils import get_contraction, traverse
+@@ -150,12 +148,7 @@ class ContractionTree(_ContractionTree):
+             ts_inds.extend([None] *
+                            (max(mit.flatten(contraction)) - n_tensors + 1))
+ 
+-            for tx_, ty_, tz_ in track(
+-                    contraction,
+-                    console=Console(stderr=True),
+-                    disable=(verbose <= 0),
+-                    total=len(contraction),
+-                    description="Creating intermediate tensors..."):
++            for tx_, ty_, tz_ in contraction:
+                 # Get inds
+                 ix_ = frozenset(ts_inds[tx_])
+                 iy_ = frozenset(ts_inds[ty_])
+@@ -408,16 +401,5 @@ def traverse_tree(ctree: ContractionTree,
+         callback: The 'callback' function to call.
+         verbose: Verbose output.
+     """
+-    with Progress(disable=(verbose <= 0), console=Console(stderr=True)) as pbar:
+-        task = pbar.add_task("Exploring contraction tree...", total=len(ctree))
+-
+-        # Add pbar to callback
+-        def callback_(pos: int):
+-            pbar.update(task, advance=1)
+-            callback(pos)
+-
+-        # Traverse ctree
+-        traverse(ctree, callback_)
+-
+-        # Final update of pbar
+-        pbar.update(task, refresh=True)
++    # Traverse ctree
++    traverse(ctree, callback)
+diff --git a/tnco/utils/tn.py b/tnco/utils/tn.py
+index 24362bf..e34bf43 100644
+--- a/tnco/utils/tn.py
++++ b/tnco/utils/tn.py
+@@ -22,8 +22,6 @@ from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple, Union
+ 
+ import autoray as ar
+ import more_itertools as mit
+-from rich.console import Console
+-from rich.progress import Progress, track
+ 
+ import tnco.utils.tensor as tensor_utils
+ from tnco.ordered_frozenset import OrderedFrozenSet
+@@ -148,10 +146,7 @@ def get_random_contraction_path(
+     contraction = []
+ 
+     # While there are available tensors ...
+-    with Progress(disable=(verbose <= 0), console=Console(stderr=True)) as pbar:
+-        total_pbar = len(avail_tensors)
+-        task = pbar.add_task("Getting contraction path...", total=total_pbar)
+-
++    if True:
+         while avail_tensors:
+             if px is None or not adj[px]:
+                 # Get a random available posistion
+@@ -212,12 +207,6 @@ def get_random_contraction_path(
+             # Always use the last one
+             px = pz
+ 
+-            # Update progressbar
+-            pbar.update(task, completed=total_pbar - len(avail_tensors))
+-
+-        # Last update of the progressbar
+-        pbar.update(task, completed=total_pbar, refresh=True)
+-
+         # Check output inds
+         assert ts_inds[-1].issubset(output_inds)
+ 
+@@ -474,10 +463,7 @@ def fuse(
+     all_merged_tensors = []
+ 
+     # While there are available indices to contract
+-    with Progress(disable=(verbose <= 0), console=Console(stderr=True)) as pbar:
+-        total_pbar = len(avail_inds)
+-        task = pbar.add_task("Fusing tensors...", total=total_pbar)
+-
++    if True:
+         while avail_inds:
+             # Select random position
+             index = avail_inds.pop(rng.randrange(len(avail_inds)))
+@@ -559,12 +545,6 @@ def fuse(
+             # Update merged tensors
+             all_merged_tensors.append((px, py, tz))
+ 
+-            # Update pbar
+-            pbar.update(task, completed=total_pbar - len(avail_inds))
+-
+-        # Final update
+-        pbar.update(task, completed=total_pbar, refresh=True)
+-
+     # No excluded index should appear in merged
+     assert not all_merged_inds & exclude_inds
+ 
+@@ -768,11 +748,7 @@ def contract(
+         raise ValueError("'output_inds' is not consistent with 'ts_inds'.")
+ 
+     # Contract
+-    for x, y in track(map(sorted, path),
+-                      console=Console(stderr=True),
+-                      description="Contracting...",
+-                      total=len(path),
+-                      disable=(verbose <= 0)):
++    for x, y in map(sorted, path):
+         if x == y:
+             raise ValueError("'path' is not valid.")
+ 
+-- 
+2.52.0.305.g3fc767764a-goog
+
