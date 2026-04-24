@@ -21,6 +21,7 @@
 
       overlay = final: prev: {
         hphi = final.callPackage ./nix/hphi.nix { };
+        hptt = final.callPackage ./nix/hptt.nix { };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
             autoray = python-final.callPackage ./nix/autoray.nix { };
