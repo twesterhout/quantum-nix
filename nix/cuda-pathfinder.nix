@@ -7,7 +7,7 @@
 
 buildPythonPackage rec {
   pname = "cuda-pathfinder";
-  version = "1.5.0";
+  version = "1.5.5";
   format = "wheel";
   src = fetchPypi {
     inherit version format;
@@ -15,7 +15,7 @@ buildPythonPackage rec {
     dist = "py3";
     abi = "none";
     python = "py3";
-    hash = "sha256-SY+QqeneNgRKeSR0KuzOEcUMSfc18bxT4FqkbenqQRA";
+    hash = "sha256-AijAI/ldFIDxQ+9ciSLSeiqwUgh6lC6B3Cicnrj5Fok";
   };
   preFixup = with cudaPackages; ''
     ls $out/${python.sitePackages}

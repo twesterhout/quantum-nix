@@ -15,28 +15,22 @@ let
 in
 buildPythonPackage rec {
   pname = "cupy";
-  version = "14.0.1";
+  version = "14.1.1";
   format = "wheel";
-  src = fetchPypi {
-    inherit version format;
-    pname = "cupy_cuda13x";
-    dist = py;
-    abi = py;
-    python = py;
-    platform = "manylinux2014_x86_64";
-    hash = {
-      "3.13" = "sha256-HCBkg6rqQM04v70aKfTfDBnVVdMG/+Q+8W852w5+en8"; # sha256-Ify06RfkMjftzF46GhJB4qKUa6nld842/VgL2YVvkeg";
-    }."${python.pythonVersion}";
-  };
-  # preFixup = ''
-  #   find $out -name "*cusolver*.so*" -exec patchelf --remove-needed libcusolver.so.11 '{}' \;
-  #   find $out -name "*cutensor*.so*" -exec patchelf --remove-needed libcutensor.so.2 --remove-needed libcutensorMg.so.2 '{}' \;
-  #   find $out -name "*cusparse*.so*" -exec patchelf --remove-needed libcusparse.so.12 '{}' \;
-  #   find $out -name "*cufft*.so*" -exec patchelf --remove-needed libcufft.so.11 '{}' \;
-  # '';
+  src = fetchPypi ({ inherit version format; dist = py; abi = py; python = py; platform = "manylinux2014_x86_64"; } // {
+    "12" = { pname = "cupy_cuda12x"; hash = { "3.13" = "sha256-duo1Rp4qoKgzK4j3JQXqL3hxoLyPmwyHGE9X5Hyao78"; }."${python.pythonVersion}"; };
+  }."${cudaPackages.cudaMajorVersion}");
   dependencies = [ numpy cuda-pathfinder ];
   buildInputs = with cudaPackages; [ nccl (lib.getLib libcusolver) (lib.getLib libcusparse) (lib.getLib libcufft)
     (lib.getLib libcublas) (lib.getLib libcurand) (lib.getLib cuda_cudart) (lib.getLib cuda_nvrtc) (lib.getLib libnvjitlink) ];
-  nativeBuildInputs = [ autoPatchelfHook ]; # autoAddDriverRunpath ];
+  nativeBuildInputs = [ autoPatchelfHook ];
   autoPatchelfIgnoreMissingDeps = [ "libcutensor.so.2" "libcutensorMg.so.2" ];
+  meta = {
+    description = "NumPy-compatible matrix library accelerated by CUDA";
+    homepage = "https://cupy.chainer.org/";
+    changelog = "https://github.com/cupy/cupy/releases/tag/${version}";
+    license = lib.licenses.mit;
+    platforms = [ "aarch64-linux" "x86_64-linux" ];
+    maintainers = with lib.maintainers; [ twesterhout ];
+  };
 }

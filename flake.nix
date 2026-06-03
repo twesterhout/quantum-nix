@@ -67,12 +67,13 @@
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
       pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
-      # system).cudaPackages_13_1.pkgs;
     in
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
         cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_13_2 cudaPackages_13_0 python3Packages python311Packages python312Packages; };
+        cuda12 = (pkgs-for-cuda system).cudaPackages.pkgs;
+        cuda13 = (pkgs-for-cuda system).cudaPackages_13_0.pkgs;
       });
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
