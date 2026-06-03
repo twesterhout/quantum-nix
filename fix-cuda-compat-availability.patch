@@ -1,0 +1,24 @@
+--- a/pkgs/development/cuda-modules/buildRedist/default.nix
++++ b/pkgs/development/cuda-modules/buildRedist/default.nix
+@@ -68,9 +68,6 @@
+     "output" + toUpper (substring 0 1 output) + substring 1 (stringLength output - 1) output;
+ 
+   getSupportedReleases =
+-    let
+-      desiredCudaVariant = _mkCudaVariant cudaMajorVersion;
+-    in
+     release:
+     # Always show preference to the "source", then "linux-all" redistSystem if they are available, as they are
+     # the most general.
+@@ -85,6 +82,11 @@
+     else
+       let
+         hasCudaVariants = release ? cuda_variant;
++        desiredCudaVariant =
++          if hasCudaVariants && (lib.hasInfix "." (lib.head release.cuda_variant)) then
++            "cuda${lib.versions.majorMinor cudaMajorMinorVersion}"
++          else
++            _mkCudaVariant cudaMajorVersion;
+       in
+       foldlAttrs (
+         acc: name: value:

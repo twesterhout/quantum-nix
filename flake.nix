@@ -20,6 +20,12 @@
       forEachSystem = f: lib.mapAttrs f inputs.nixpkgs.legacyPackages;
 
       overlay = final: prev: {
+        _cuda = prev._cuda.extend (
+          _: prevAttrs: {
+            extensions = prevAttrs.extensions ++ [
+              (f: p: { cuda_compat = p.cuda_compat.overrideAttrs (attrs: { autoPatchelfIgnoreMissingDeps = attrs.autoPatchelfIgnoreMissingDeps ++ [ "libcrypto.so.3" ]; }); })
+            ];
+          });
         hphi = final.callPackage ./nix/hphi.nix { };
         hptt = final.callPackage ./nix/hptt.nix { };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
@@ -61,19 +67,25 @@
         ];
       }; # // lib.optionalAttrs prev.config.cudaSupport { cudaPackages = prev.cudaPackages_12_6; };
 
+
+      patched-nixpkgs = inputs.nixpkgs.legacyPackages.x86_64-linux.applyPatches {
+        src = inputs.nixpkgs.legacyPackages.x86_64-linux.path;
+        patches = [ ./fix-cuda-compat-availability.patch ];
+      };
+
       cudaConfig = { allowUnfree = true; cudaSupport = true; cudaCapabilities = [ "8.0" "9.0" "12.0" ]; cudaForwardCompat = true; };
       import-nixpkgs-for = drv: cudaSupport: system: import drv {
         inherit system; config = lib.optionalAttrs cudaSupport cudaConfig; overlays = [ overlay ];
       };
       pkgs-for-cpu = import-nixpkgs-for inputs.nixpkgs false;
-      pkgs-for-cuda = import-nixpkgs-for inputs.nixpkgs true;
+      pkgs-for-cuda = import-nixpkgs-for patched-nixpkgs true;
     in
     {
       packages = forEachSystem (system: _: {
         cpu = { inherit (pkgs-for-cpu system) hphi python3Packages python311Packages python312Packages; };
         cuda = { inherit (pkgs-for-cuda system) cudaPackages cudaPackages_13_2 cudaPackages_13_0 python3Packages python311Packages python312Packages; };
         cuda12 = (pkgs-for-cuda system).cudaPackages.pkgs;
-        cuda13 = (pkgs-for-cuda system).cudaPackages_13_0.pkgs;
+        cuda13 = (pkgs-for-cuda system).cudaPackages_13_1.pkgs;
       });
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
