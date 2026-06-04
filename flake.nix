@@ -4,14 +4,14 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
   nixConfig = {
-    extra-substituters = [
-      "https://nix-community.cachix.org"
-      "https://cuda-maintainers.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
-    ];
+    # extra-substituters = [
+    #   "https://nix-community.cachix.org"
+    #   "https://cuda-maintainers.cachix.org"
+    # ];
+    # extra-trusted-public-keys = [
+    #   "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    #   "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+    # ];
   };
 
   outputs = inputs:
@@ -89,7 +89,7 @@
       });
       devShells = forEachSystem (system: _: {
           default = let pkgs = pkgs-for-cpu system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [ cachix ]; };
-          test = let pkgs = pkgs-for-cuda system; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
+          test = let pkgs = (pkgs-for-cuda system).cudaPackages_13_1.pkgs; in pkgs.mkShell { nativeBuildInputs = with pkgs; [
             (python3.withPackages (ps: with ps; [ cupy numpy ]))
           ]; };
         });

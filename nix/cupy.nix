@@ -19,6 +19,7 @@ buildPythonPackage rec {
   format = "wheel";
   src = fetchPypi ({ inherit version format; dist = py; abi = py; python = py; platform = "manylinux2014_x86_64"; } // {
     "12" = { pname = "cupy_cuda12x"; hash = { "3.13" = "sha256-duo1Rp4qoKgzK4j3JQXqL3hxoLyPmwyHGE9X5Hyao78"; }."${python.pythonVersion}"; };
+    "13" = { pname = "cupy_cuda13x"; hash = { "3.13" = "sha256-/0UmclwTmOoZ1XgERzeqJIWbCOH0aaugykXf1vmqUF0"; }."${python.pythonVersion}"; };
   }."${cudaPackages.cudaMajorVersion}");
   dependencies = [ numpy cuda-pathfinder ];
   buildInputs = with cudaPackages; [ nccl (lib.getLib libcusolver) (lib.getLib libcusparse) (lib.getLib libcufft)
