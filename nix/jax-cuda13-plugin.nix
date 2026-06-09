@@ -28,7 +28,7 @@ buildPythonPackage {
     dist = py;
     python = py;
     abi = py;
-    hash = "sha256-AJKi74kMoRXrcT/rt662lRDJv7lu/fZd7Sk8FXZeWIE";
+    hash = { "0.10.0" = "sha256-TCAior4fTzZU3KmL1UhwgcqbWuJbcATI+GxEmkoc1D8"; }."${version}";
   };
   nativeBuildInputs = [ autoPatchelfHook pypaInstallHook wheelUnpackHook ];
   postInstall = ''

@@ -39,7 +39,7 @@ buildPythonPackage (finalAttrs: {
     python = "py3";
     dist = "py3";
     platform = "manylinux_2_27_x86_64";
-    hash = "sha256-sbBFXPa9qjruUTBKZWtYY4nmECstdB+lTM0SSomau30";
+    hash = { "0.10.0" = "sha256-hI1q4+Zj0EDFPpAuqdOAqQK/pefaiBBTzsQINgA2+no"; }."${version}";
   };
   nativeBuildInputs = [ autoPatchelfHook pypaInstallHook wheelUnpackHook ];
   postInstall = ''
