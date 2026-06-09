@@ -36,7 +36,7 @@ buildPythonPackage ({
   nativeBuildInputs = [ setuptools cmake ] ++ lib.optionals cudaSupport [ cudaPackages.cuda_nvcc autoAddDriverRunpath ];
   preCheck = "rm -rf qsimcirq/";
   nativeCheckInputs = [ pytestCheckHook ];
-  pytestFlagsArray = [ "qsimcirq_tests/" "--capture=no" "-v" ];
+  pytestFlags = [ "qsimcirq_tests/" "--capture=no" "-v" ];
   disabledTests = [ "multi_qubit_noise" ]; # These tests complain about non-unitary matrices. Likely an issue with precision
   inherit doCheck;
   meta = with lib; {
