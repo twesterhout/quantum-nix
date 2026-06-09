@@ -25,7 +25,7 @@ let
       (lib.getLib libcusparse) # libcusparse.so
       (lib.getLib nccl) # libnccl.so
       (lib.getLib libnvjitlink) # libnvJitLink.so
-      (lib.getLib addDriverRunpath.driverLink) # libcuda.so
+      (lib.getLib autoAddCudaCompatRunpath.libcudaPath)
     ]);
 in
 buildPythonPackage (finalAttrs: {
